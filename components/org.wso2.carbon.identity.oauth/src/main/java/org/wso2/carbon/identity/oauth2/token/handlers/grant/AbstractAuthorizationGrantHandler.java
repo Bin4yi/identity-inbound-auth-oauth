@@ -620,7 +620,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         if (tokReqMsgCtx.isImpersonationRequest()) {
             accessTokenExtendedAttributes =
                     addExtendedAttribute(IMPERSONATING_ACTOR, tokReqMsgCtx.getProperty(IMPERSONATING_ACTOR).toString(),
-                    accessTokenExtendedAttributes);
+                            accessTokenExtendedAttributes);
         }
         // Add any new extended attributes here using @addExtendedAttribute.
         return accessTokenExtendedAttributes;
@@ -658,7 +658,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         long validityPeriodInMillis = getConfiguredExpiryTimeForApplication(tokReqMsgCtx, consumerKey, oAuthAppBean);
         tokReqMsgCtx.setValidityPeriod(validityPeriodInMillis);
         tokReqMsgCtx.setAccessTokenIssuedTime(timestamp.getTime());
-        tokReqMsgCtx.setAudiences(OAuth2Util.getOIDCAudience(consumerKey, oAuthAppBean));
+
+        // Only set default audiences if not already specified by grant handler
+        if (tokReqMsgCtx.getAudiences() == null || tokReqMsgCtx.getAudiences().isEmpty()) {
+            tokReqMsgCtx.setAudiences(OAuth2Util.getOIDCAudience(consumerKey, oAuthAppBean));
+        }
 
         updateRefreshTokenValidityPeriodInMessageContext(oAuthAppBean, existingTokenBean, tokReqMsgCtx);
     }
