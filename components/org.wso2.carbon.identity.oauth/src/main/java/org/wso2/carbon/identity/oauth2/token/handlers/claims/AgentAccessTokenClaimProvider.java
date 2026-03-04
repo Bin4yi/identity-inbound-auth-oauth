@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.ACTOR_AZP;
+
 /**
  * A class that provides additional claims for JWT access tokens when the AI agent is used.
  */
@@ -38,12 +40,12 @@ public class AgentAccessTokenClaimProvider implements JWTAccessTokenClaimProvide
             agentMap.put(AUT, AGENT);
             return agentMap;
         } else if (GrantType.AUTHORIZATION_CODE.toString().equals(context.getOauth2AccessTokenReqDTO().getGrantType())
-                && context.getRequestedActor() != null) {
+            && context.getRequestedActor() != null) {
+
             Map<String, Object> actClaimMap = new HashMap<>();
             actClaimMap.put(SUB, context.getRequestedActor());
-
             // Include azp in act claim from context property
-            Object actorAzp = context.getProperty("ACTOR_AZP");
+            Object actorAzp = context.getProperty(ACTOR_AZP);
             if (actorAzp != null) {
                 actClaimMap.put(AZP, actorAzp.toString());
             } else {
@@ -53,8 +55,8 @@ public class AgentAccessTokenClaimProvider implements JWTAccessTokenClaimProvide
                     actClaimMap.put(AZP, clientId);
                 }
             }
+
             Map<String, Object> agentMap = new HashMap<>();
-//            agentMap.put(ACT, Collections.singletonMap(SUB, context.getRequestedActor()));
             agentMap.put(ACT, actClaimMap);
             return agentMap;
         }

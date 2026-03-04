@@ -238,7 +238,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         if (authzCode == null) {
             if (log.isDebugEnabled()) {
                 log.debug("authorization code is not saved in the token request message context for client : " +
-                        tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId());
+                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId());
             }
             authzCode = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAuthorizationCode();
         }
@@ -780,22 +780,18 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             // Fallback to client_id if azp not present
             actorAzpClaim = claimsSet.getClaim("client_id");
         }
-
         // Check for existing act claim in actor token for delegation chain
         Object existingActClaim = claimsSet.getClaim("act");
-
         // Set delegation properties in context
         tokReqMsgCtx.setImpersonationRequest(false);
         tokReqMsgCtx.addProperty("IS_DELEGATION_REQUEST", true);
         tokReqMsgCtx.addProperty("ACTOR_SUBJECT", actorTokenSubject);
-
         if (actorAzpClaim != null) {
             tokReqMsgCtx.addProperty("ACTOR_AZP", actorAzpClaim.toString());
             if (log.isDebugEnabled()) {
                 log.debug("Actor AZP extracted from actor token: " + actorAzpClaim.toString());
             }
         }
-
         // Preserve existing act claim for delegation chain nesting
         if (existingActClaim != null) {
             tokReqMsgCtx.addProperty("EXISTING_ACT_CLAIM", existingActClaim);

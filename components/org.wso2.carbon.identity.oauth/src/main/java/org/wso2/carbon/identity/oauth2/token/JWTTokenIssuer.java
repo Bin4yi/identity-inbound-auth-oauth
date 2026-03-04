@@ -76,6 +76,11 @@ import static org.wso2.carbon.identity.oauth.common.OAuthConstants.RENEW_TOKEN_W
 import static org.wso2.carbon.identity.oauth.common.OAuthConstants.REQUEST_BINDING_TYPE;
 import static org.wso2.carbon.identity.oauth2.util.OAuth2Util.JWT_X5T_ENABLED;
 import static org.wso2.carbon.identity.oauth2.util.OAuth2Util.getPrivateKey;
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.IS_DELEGATION_REQUEST;
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.IS_SELF_DELEGATION_WITH_ACT;
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.ACTOR_SUBJECT;
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.ACTOR_AZP;
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.EXISTING_ACT_CLAIM;
 
 /**
  * Self contained access token builder.
@@ -732,18 +737,19 @@ public class JWTTokenIssuer extends OauthTokenIssuerImpl {
         // But we are keeping this in JWT as well.
         jwtClaimsSetBuilder.audience(tokenReqMessageContext != null && tokenReqMessageContext.getAudiences() != null ?
                 tokenReqMessageContext.getAudiences() : OAuth2Util.getOIDCAudience(consumerKey, oAuthAppDO));
+
         // Handle act claim for both delegation and self-delegation with existing act
         if (tokenReqMessageContext != null) {
-            Object isDelegationRequest = tokenReqMessageContext.getProperty("IS_DELEGATION_REQUEST");
-            Object isSelfDelegationWithAct = tokenReqMessageContext.getProperty("IS_SELF_DELEGATION_WITH_ACT");
+            Object isDelegationRequest = tokenReqMessageContext.getProperty(IS_DELEGATION_REQUEST);
+            Object isSelfDelegationWithAct = tokenReqMessageContext.getProperty(IS_SELF_DELEGATION_WITH_ACT);
 
             // Case 1: Regular delegation - create new act claim with nesting
-            if (isDelegationRequest != null && Boolean.TRUE.equals(isDelegationRequest)) {
-                Object actorSubject = tokenReqMessageContext.getProperty("ACTOR_SUBJECT");
-                Object actorAzp = tokenReqMessageContext.getProperty("ACTOR_AZP");
+            if (Boolean.TRUE.equals(isDelegationRequest)) {
+                Object actorSubject = tokenReqMessageContext.getProperty(ACTOR_SUBJECT);
+                Object actorAzp = tokenReqMessageContext.getProperty(ACTOR_AZP);
 
                 if (actorSubject != null) {
-                    Object existingActClaim = tokenReqMessageContext.getProperty("EXISTING_ACT_CLAIM");
+                    Object existingActClaim = tokenReqMessageContext.getProperty(EXISTING_ACT_CLAIM);
 
                     // Build the act claim structure
                     Map<String, Object> actClaim = new HashMap<>();
@@ -779,8 +785,8 @@ public class JWTTokenIssuer extends OauthTokenIssuerImpl {
                 }
             }
             // Case 2: Self-delegation with existing act claim - preserve it
-            else if (isSelfDelegationWithAct != null && Boolean.TRUE.equals(isSelfDelegationWithAct)) {
-                Object existingActClaim = tokenReqMessageContext.getProperty("EXISTING_ACT_CLAIM");
+            else if (Boolean.TRUE.equals(isSelfDelegationWithAct)) {
+                Object existingActClaim = tokenReqMessageContext.getProperty(EXISTING_ACT_CLAIM);
 
                 if (existingActClaim != null) {
                     if (existingActClaim instanceof Map) {
@@ -802,6 +808,7 @@ public class JWTTokenIssuer extends OauthTokenIssuerImpl {
             // Note: Regular self-delegation (without existing act claim) does NOT add any act claim
             // Note: Impersonation uses "may_act" claim in subject token, not "act" in issued token
         }
+
         JWTClaimsSet jwtClaimsSet;
 
         // Handle custom claims
@@ -878,7 +885,8 @@ public class JWTTokenIssuer extends OauthTokenIssuerImpl {
      * @param tokenReqMessageContext     Token request message context.
      * @return authenticated subject identifier.
      */
-    private String getAuthenticatedSubjectIdentifier(OAuthAuthzReqMessageContext authAuthzReqMessageContext, OAuthTokenReqMessageContext tokenReqMessageContext) throws IdentityOAuth2Exception {
+    private String getAuthenticatedSubjectIdentifier(OAuthAuthzReqMessageContext authAuthzReqMessageContext,
+     OAuthTokenReqMessageContext tokenReqMessageContext) throws IdentityOAuth2Exception {
 
         AuthenticatedUser authenticatedUser = getAuthenticatedUser(authAuthzReqMessageContext, tokenReqMessageContext);
         return authenticatedUser.getAuthenticatedSubjectIdentifier();
@@ -1041,7 +1049,8 @@ public class JWTTokenIssuer extends OauthTokenIssuerImpl {
      * @param tokenReqMessageContext
      * @throws IdentityOAuth2Exception
      */
-    protected JWTClaimsSet handleCustomClaims(JWTClaimsSet.Builder jwtClaimsSetBuilder, OAuthTokenReqMessageContext tokenReqMessageContext)
+    protected JWTClaimsSet handleCustomClaims(JWTClaimsSet.Builder jwtClaimsSetBuilder,
+                                              OAuthTokenReqMessageContext tokenReqMessageContext)
             throws IdentityOAuth2Exception {
 
         if (tokenReqMessageContext != null && tokenReqMessageContext.isPreIssueAccessTokenActionsExecuted()) {
@@ -1063,7 +1072,7 @@ public class JWTTokenIssuer extends OauthTokenIssuerImpl {
     }
 
     private JWTClaimsSet handleCustomClaims(JWTClaimsSet.Builder jwtClaimsSetBuilder,
-                                            OAuthTokenReqMessageContext tokenReqMessageContext, OAuthAppDO oAuthAppDO)
+                                              OAuthTokenReqMessageContext tokenReqMessageContext, OAuthAppDO oAuthAppDO)
             throws IdentityOAuth2Exception {
 
         if (tokenReqMessageContext != null && tokenReqMessageContext.isPreIssueAccessTokenActionsExecuted()) {
