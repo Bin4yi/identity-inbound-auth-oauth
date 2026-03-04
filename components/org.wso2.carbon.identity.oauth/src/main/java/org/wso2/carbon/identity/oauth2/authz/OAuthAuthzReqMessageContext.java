@@ -325,10 +325,12 @@ public class OAuthAuthzReqMessageContext implements Serializable {
     }
 
     public List<String> getAudiences() {
+
         return audiences;
     }
 
     public void setAudiences(List<String> audiences) {
+
         this.audiences = audiences;
     }
 }

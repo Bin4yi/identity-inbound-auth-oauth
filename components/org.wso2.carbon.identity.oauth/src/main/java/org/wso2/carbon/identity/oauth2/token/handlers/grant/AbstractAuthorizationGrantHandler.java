@@ -85,6 +85,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.wso2.carbon.identity.oauth.common.OAuthConstants.IMPERSONATING_ACTOR;
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.DELEGATING_ACTOR;
 import static org.wso2.carbon.identity.oauth.common.OAuthConstants.OAUTH_APP;
 import static org.wso2.carbon.identity.oauth.common.OAuthConstants.RENEW_TOKEN_WITHOUT_REVOKING_EXISTING_ENABLE_CONFIG;
 import static org.wso2.carbon.identity.oauth.common.OAuthConstants.TokenBindings.NONE;
@@ -621,6 +622,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             accessTokenExtendedAttributes =
                     addExtendedAttribute(IMPERSONATING_ACTOR, tokReqMsgCtx.getProperty(IMPERSONATING_ACTOR).toString(),
                             accessTokenExtendedAttributes);
+        }
+        if (tokReqMsgCtx.isDelegationRequest()) {
+            accessTokenExtendedAttributes =
+                    addExtendedAttribute(DELEGATING_ACTOR, tokReqMsgCtx.getProperty(DELEGATING_ACTOR).toString(),
+                    accessTokenExtendedAttributes);
         }
         // Add any new extended attributes here using @addExtendedAttribute.
         return accessTokenExtendedAttributes;
