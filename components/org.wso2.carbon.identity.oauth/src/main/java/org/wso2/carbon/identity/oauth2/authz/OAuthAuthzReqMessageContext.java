@@ -332,8 +332,9 @@ public class OAuthAuthzReqMessageContext implements Serializable {
     }
 
     public void setTokenId(String tokenId) {
-
-
+        
+        this.tokenId = tokenId;
+    }
     public List<String> getAudiences() {
 
         return audiences;
