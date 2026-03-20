@@ -134,6 +134,12 @@ public final class OAuthConstants {
             ".EnableHybridFlowAppLevelValidation";
     public static final String RESTRICT_FRAGMENT_COMPONENTS = "OAuth.Callback.RestrictFragmentComponents";
 
+    // Token Exchange delegation property key
+    public static final String ACTOR_AZP = "ACTOR_AZP";
+    public static final String IS_DELEGATION_REQUEST = "IS_DELEGATION_REQUEST";
+    public static final String ACTOR_SUBJECT = "ACTOR_SUBJECT";
+    public static final String EXISTING_ACT_CLAIM = "EXISTING_ACT_CLAIM";
+
     /**
      * Enum for OIDC supported subject types.
      */
@@ -195,6 +201,7 @@ public final class OAuthConstants {
     public static final String ID_TOKEN_SUBJECT_TOKEN = "id_token subject_token";
     public static final String IMPERSONATED_SUBJECT = "IMPERSONATED_SUBJECT";
     public static final String IMPERSONATING_ACTOR = "IMPERSONATING_ACTOR";
+    public static final String DELEGATING_ACTOR = "DELEGATING_ACTOR";
     public static final String IDTOKEN_TOKEN = "id_token token";
     public static final String ACTOR_TOKEN = "actor_token";
     public static final String SCOPE = "scope";
